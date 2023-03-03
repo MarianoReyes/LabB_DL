@@ -4,7 +4,6 @@ Postfix a AFN
 
 from re import S
 import pandas as pd
-import os.path
 from graphviz import Digraph
 
 
@@ -21,7 +20,7 @@ class PostifixToAFN():
         self.afn_final = []
         self.error = False
 
-    def graficar(self):
+    def graficar(self, nombre):
         dot = Digraph()
         for i in range(len(self.estados)):
             if self.estados[i] == self.ef:
@@ -34,7 +33,7 @@ class PostifixToAFN():
             else:
                 dot.edge(str(transicion[0]), str(
                     transicion[2]), label=transicion[1])
-        dot.render('afn_grafico', format='png', view=True)
+        dot.render(nombre, format='png', view=True)
 
     def operando(self, caracter):
         if(caracter.isalpha() or caracter.isnumeric() or caracter == "ε"):
@@ -234,34 +233,25 @@ class PostifixToAFN():
         self.estados_list = ", ".join(self.estados_list)
 
         if self.error == False:
-            nombre_archivo = input(
-                '\nIngrese el nombre del archivo para guardar el AFN convertido de la Regex -> ')
 
-            nombre_archivo = nombre_archivo + '.txt'
+            with open('afn.txt', 'a', encoding="utf-8") as f:
+                f.write("AFN  a partir de la Expresión Regular -->")
+                f.write("\n")
+                f.write("Símbolos: "+', '.join(simbolos))
+                f.write("\n")
+                f.write("Estados:  " + str(self.estados_list))
+                f.write("\n")
+                f.write("Estado inicial: { " + str(self.e0) + " }")
+                f.write("\n")
+                f.write("Estados de aceptación: { " + str(self.ef) + " }")
+                f.write("\n")
+                f.write("Transiciones: " + str(self.transiciones))
+                f.write("\n")
+                f.write(string_afn)
 
-            if os.path.exists(nombre_archivo):
-                print("\nArchivo AFN existente")
-
-            else:
-                with open(nombre_archivo, 'a', encoding="utf-8") as f:
-                    f.write("AFN  a partir de la Expresión Regular -->")
-                    f.write("\n")
-                    f.write("Símbolos: "+', '.join(simbolos))
-                    f.write("\n")
-                    f.write("Estados:  " + str(self.estados_list))
-                    f.write("\n")
-                    f.write("Estado inicial: { " + str(self.e0) + " }")
-                    f.write("\n")
-                    f.write("Estados de aceptación: { " + str(self.ef) + " }")
-                    f.write("\n")
-                    f.write("Transiciones: " + str(self.transiciones))
-                    f.write("\n")
-                    f.write(string_afn)
-
-                print("\nArchivo de AFN escrito con éxito")
+            print("\nArchivo de AFN escrito con éxito")
 
             # SI NO SE DESEA GRAFICAR POR PROBLEMAS CON LIBRERIA QUITAR LA LINEA SIGUIENTE
-            self.graficar()  # imagen del AFN
-            print("\nImagen del AFN generada con éxito")
+            self.graficar('afn_grafico')  # imagen del AFN
         else:
             print("\nIngrese una expresión Regex válida")

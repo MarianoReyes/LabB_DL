@@ -1,0 +1,37 @@
+AFN  a partir de la Expresión Regular -->
+Símbolos: a, b
+Estados:  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+Estado inicial: { 6 }
+Estados de aceptación: { 11 }
+Transiciones: (0 - a - 1), (2 - b - 3), (4 - ε - 0), (4 - ε - 2), (3 - ε - 5), (1 - ε - 5), (5 - ε - 4), (5 - ε - 7), (6 - ε - 4), (6 - ε - 7), (8 - a - 9), (7 - ε - 8), (10 - b - 11), (9 - ε - 10)
+      a       ε     b
+0   1.0     NaN   NaN
+1   NaN       5   NaN
+2   NaN     NaN   3.0
+3   NaN       5   NaN
+4   NaN  (0, 2)   NaN
+5   NaN  (4, 7)   NaN
+6   NaN  (4, 7)   NaN
+7   NaN       8   NaN
+8   9.0     NaN   NaN
+9   NaN      10   NaN
+10  NaN     NaN  11.0
+11  NaN     NaN   NaNAFN  a partir de la Expresión Regular -->
+Símbolos: a, b
+Estados:  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+Estado inicial: { 6 }
+Estados de aceptación: { 11 }
+Transiciones: (0 - a - 1), (2 - b - 3), (4 - ε - 0), (4 - ε - 2), (3 - ε - 5), (1 - ε - 5), (5 - ε - 4), (5 - ε - 7), (6 - ε - 4), (6 - ε - 7), (8 - a - 9), (7 - ε - 8), (10 - b - 11), (9 - ε - 10)
+      a       ε     b
+0   1.0     NaN   NaN
+1   NaN       5   NaN
+2   NaN     NaN   3.0
+3   NaN       5   NaN
+4   NaN  (0, 2)   NaN
+5   NaN  (4, 7)   NaN
+6   NaN  (4, 7)   NaN
+7   NaN       8   NaN
+8   9.0     NaN   NaN
+9   NaN      10   NaN
+10  NaN     NaN  11.0
+11  NaN     NaN   NaN
