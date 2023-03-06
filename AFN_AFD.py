@@ -10,6 +10,7 @@ class AFNtoAFD:
         self.transiciones = transiciones
         self.afd_estados = []
         self.afd_transiciones = []
+        print(transiciones)
 
     def cerradura_epsilon(self, estado):
         """
@@ -77,7 +78,7 @@ class AFNtoAFD:
                     alcanzables = (self.cerradura_epsilon(i))
 
                 # Si el conjunto de estados alcanzables no está en el AFD
-                if alcanzables not in self.afd_estados:
+                if alcanzables not in self.afd_estados and simbolo != "ε":
                     # Agregar el conjunto de estados alcanzables al AFD como un nuevo estado
                     self.afd_estados.append(alcanzables)
                     # Agregar una transición desde el estado actual con el símbolo actual al
@@ -87,7 +88,7 @@ class AFNtoAFD:
                     # Agregar el conjunto de estados alcanzables a la cola
                     cola.append(alcanzables)
                 # Si el conjunto de estados alcanzables ya está en el AFD
-                elif alcanzables in self.afd_estados and len(self.mover(actual, simbolo)) != 0:
+                elif alcanzables in self.afd_estados and len(self.mover(actual, simbolo)) != 0 and simbolo != "ε":
                     # Agregar una transición desde el estado actual con el símbolo actual al
                     # conjunto de estados alcanzables en el AFD
                     self.afd_transiciones.append((self.afd_estados.index(
@@ -98,7 +99,7 @@ class AFNtoAFD:
         # Agregar los nodos al gráfico
         for i, estado in enumerate(self.afd_estados):
             # estados completos : dot.node(str(i), label=str(sorted(estado)))
-            # estados con letras
+            # estados con letras +97 para minusculas
             dot.node(str(i), label=str(chr(i+65)))
             if self.ef in estado:
                 dot.node(str(i), shape='doublecircle')
