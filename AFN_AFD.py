@@ -1,86 +1,114 @@
-import pickle
 from graphviz import Digraph
 
 
-class AFNToAFD:
+class AFNtoAFD:
     def __init__(self, e0, ef, estados, simbolos, transiciones):
         self.e0 = e0
         self.ef = ef
         self.estados = estados
         self.simbolos = simbolos
         self.transiciones = transiciones
-        self.transiciones_afd = []
+        self.afd_estados = []
+        self.afd_transiciones = []
 
-    def conversion(self):
-        nuevos_estados = []  # Conjunto de nuevos estados del AFD
-        nuevos_transiciones = {}  # Diccionario de nuevas transiciones del AFD
-        # Estado actual del AFD, como un conjunto inmutable
-        estado_actual = frozenset([self.e0])
+    def cerradura_epsilon(self, estado):
+        """
+        Aplica la cerradura epsilon al estado dado y devuelve todos los estados alcanzables.
+        """
+        # Inicializar una lista con el estado inicial
+        resultado = [estado]
+        # Inicializar una pila con el estado inicial
+        pila = [estado]
+        # Mientras la pila no esté vacía
+        while pila:
+            # Obtener el siguiente estado de la pila
+            actual = pila.pop()
+            # Obtener todas las transiciones epsilon desde el estado actual
+            epsilon_transiciones = [
+                t[2] for t in self.transiciones if t[0] == actual and t[1] == "ε"]
+            # Para cada estado alcanzable a través de una transición epsilon
+            for e in epsilon_transiciones:
+                # Si el estado no está en el resultado
+                if e not in resultado:
+                    # Agregar el estado al resultado y a la pila
+                    resultado.append(e)
+                    pila.append(e)
+        # Devolver todos los estados alcanzables
+        return resultado
 
-        # Inicializamos el conjunto de nuevos estados y transiciones con el estado actual del AFN
-        nuevos_estados.append(estado_actual)
-        for s in self.simbolos:
-            nuevos_transiciones[(estado_actual, s)] = frozenset(
-                self.obtener_transiciones(estado_actual, s))
+    def mover(self, estados, simbolo):
+        """
+        Aplica la operación mover a un conjunto de estados y un símbolo y devuelve
+        todos los estados alcanzables.
+        """
+        # Inicializar una lista vacía para almacenar los estados alcanzables
+        resultado = []
+        # Para cada estado en el conjunto de estados
+        for estado in estados:
+            # Obtener todas las transiciones que coincidan con el símbolo dado
+            simbolo_transiciones = [
+                t[2] for t in self.transiciones if t[0] == estado and t[1] == simbolo]
+            # Agregar todos los estados alcanzables a través de estas transiciones al resultado
+            resultado.extend(simbolo_transiciones)
+        # Devolver todos los estados alcanzables
+        return resultado
 
-        # Iteramos hasta que no se puedan encontrar más estados nuevos
-        while True:
-            nuevos_estados_encontrados = False
-            for estado in nuevos_estados:
-                for s in self.simbolos:
-                    estado_alcanzable = frozenset(
-                        self.obtener_transiciones(estado, s))
-                    if estado_alcanzable not in nuevos_estados:
-                        nuevos_estados.append(estado_alcanzable)
-                        nuevos_estados_encontrados = True
-                    nuevos_transiciones[(estado, s)] = estado_alcanzable
+    def construir_afd(self):
+        """
+        Construye un AFD a partir del AFN dado utilizando la cerradura epsilon y mover.
+        """
+        print("\nConvirtiendo de AFN a AFD...")
+        # Obtener la cerradura epsilon del estado inicial
+        e0_cerradura = self.cerradura_epsilon(self.e0)
+        # Agregar la cerradura epsilon del estado inicial como el primer estado del AFD
+        self.afd_estados.append(e0_cerradura)
+        # Inicializar una cola con el primer estado del AFD
+        cola = [e0_cerradura]
+        # Mientras la cola no esté vacía
+        while cola:
+            # Obtener el siguiente estado de la cola
+            actual = cola.pop(0)
+            # Para cada símbolo en el alfabeto del AFN
+            for simbolo in self.simbolos:
+                # Obtener la cerradura epsilon del conjunto de estados alcanzables
+                # desde el estado actual consumiendo el símbolo actual
 
-            if not nuevos_estados_encontrados:
-                break
+                for i in self.mover(actual, simbolo):
+                    alcanzables = (self.cerradura_epsilon(i))
 
-        # Creamos un nuevo diccionario de transiciones utilizando los nuevos estados y transiciones del AFD
+                # Si el conjunto de estados alcanzables no está en el AFD
+                if alcanzables not in self.afd_estados:
+                    # Agregar el conjunto de estados alcanzables al AFD como un nuevo estado
+                    self.afd_estados.append(alcanzables)
+                    # Agregar una transición desde el estado actual con el símbolo actual al
+                    # conjunto de estados alcanzables en el AFD
+                    self.afd_transiciones.append((self.afd_estados.index(
+                        actual), simbolo, self.afd_estados.index(alcanzables)))
+                    # Agregar el conjunto de estados alcanzables a la cola
+                    cola.append(alcanzables)
+                # Si el conjunto de estados alcanzables ya está en el AFD
+                elif alcanzables in self.afd_estados and len(self.mover(actual, simbolo)) != 0:
+                    # Agregar una transición desde el estado actual con el símbolo actual al
+                    # conjunto de estados alcanzables en el AFD
+                    self.afd_transiciones.append((self.afd_estados.index(
+                        actual), simbolo, self.afd_estados.index(alcanzables)))
 
-        for k, v in nuevos_transiciones.items():
-            self.transiciones_afd.append(
-                [nuevos_estados.index(k[0]), k[1], nuevos_estados.index(v)])
+        # Crear un nuevo gráfico
+        dot = Digraph()
+        dot.attr(rankdir='LR')
+        # Agregar los nodos al gráfico
+        for i, estado in enumerate(self.afd_estados):
+            dot.node(str(i), label=str(sorted(estado)))
+            if estado == [self.e0]:
+                dot.node('inicio', shape='none', label='')
+                dot.edge('inicio', str(i))
+            if self.ef in estado:
+                dot.node(str(i), shape='doublecircle')
+        # Agregar las transiciones al gráfico
+        for transicion in self.afd_transiciones:
+            dot.edge(str(transicion[0]), str(
+                transicion[2]), label=str(transicion[1]))
+        # Exportar el gráfico como un archivo PNG
+        dot.render('afd_grafico', format='png', view=True)
 
-        # Devolvemos el nuevo AFD
-        return [0, len(nuevos_estados) - 1, nuevos_estados, self.simbolos, self.transiciones_afd]
-
-    def obtener_transiciones(self, estado, simbolo):
-        # Devuelve el conjunto de estados alcanzables desde el estado dado utilizando el símbolo dado
-        estados_alcanzables = []
-        for t in self.transiciones:
-            if t[0] in estado and t[1] == simbolo:
-                estados_alcanzables.append(t[2])
-        return estados_alcanzables
-
-    def graficar_afd(self):
-        # Obtener la información del AFD
-        [e0, ef, estados, simbolos, transiciones_afd] = self.conversion()
-
-        # Crear el objeto Digraph de graphviz
-        graph = Digraph()
-
-        # Agregar los nodos al grafo
-        for i, estado in enumerate(estados):
-            # El estado inicial se representa como una flecha apuntando al estado
-            if estado == frozenset([e0]):
-                graph.node(str(i), shape='none')
-                graph.edge('', str(i), label='inicio')
-
-            # El estado final se representa como un doble círculo
-            if ef in estado:
-                graph.node(str(i), shape='doublecircle')
-
-            # Los estados normales se representan como círculos simples
-            if estado != frozenset([e0]) and ef not in estado:
-                graph.node(str(i), shape='circle')
-
-        # Agregar las transiciones al grafo
-        for transicion in transiciones_afd:
-            graph.edge(str(transicion[0]), str(
-                transicion[2]), label=transicion[1])
-
-        # Mostrar el grafo
-        graph.view()
+        print("\nArchivo de AFD escrito con éxito")
