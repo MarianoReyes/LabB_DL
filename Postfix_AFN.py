@@ -255,3 +255,13 @@ class PostifixToAFN():
             self.graficar('afn_grafico')  # imagen del AFN
         else:
             print("\nIngrese una expresión Regex válida")
+
+    def simular_cadena(self, estado_actual, cadena):
+        if cadena == "":
+            return estado_actual == self.ef
+        else:
+            for transicion in self.transiciones_splited:
+                if transicion[0] == estado_actual and transicion[1] == cadena[0]:
+                    if self.simular_cadena(transicion[2], cadena[1:]):
+                        return True
+            return False

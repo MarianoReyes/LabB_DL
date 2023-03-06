@@ -10,7 +10,6 @@ class AFNtoAFD:
         self.transiciones = transiciones
         self.afd_estados = []
         self.afd_transiciones = []
-        print(transiciones)
 
     def cerradura_epsilon(self, estado):
         """
