@@ -95,13 +95,11 @@ class AFNtoAFD:
 
         # Crear un nuevo gráfico
         dot = Digraph()
-        dot.attr(rankdir='LR')
         # Agregar los nodos al gráfico
         for i, estado in enumerate(self.afd_estados):
-            dot.node(str(i), label=str(sorted(estado)))
-            if estado == [self.e0]:
-                dot.node('inicio', shape='none', label='')
-                dot.edge('inicio', str(i))
+            # estados completos : dot.node(str(i), label=str(sorted(estado)))
+            # estados con letras
+            dot.node(str(i), label=str(chr(i+65)))
             if self.ef in estado:
                 dot.node(str(i), shape='doublecircle')
         # Agregar las transiciones al gráfico

@@ -1,13 +1,10 @@
 digraph {
-	rankdir=LR
-	0 [label="[0]"]
-	inicio [label="" shape=none]
-	inicio -> 0
-	1 [label="[1, 2, 4, 5, 6]"]
-	2 [label="[7, 8, 10, 11]"]
+	0 [label=A]
+	1 [label=B]
+	2 [label=C]
 	2 [shape=doublecircle]
-	3 [label="[2, 3, 5, 6]"]
-	4 [label="[8, 9, 11]"]
+	3 [label=D]
+	4 [label=E]
 	4 [shape=doublecircle]
 	0 -> 1 [label=a]
 	1 -> 2 [label=a]
