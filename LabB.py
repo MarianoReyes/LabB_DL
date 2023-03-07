@@ -56,7 +56,9 @@ if __name__ == '__main__':
         minizacionAFD = MinimizadorAFD(
             conversionAFD.e0_afd, conversionAFD.ef_afd, conversionAFD.afd_transiciones)
 
-        afd_minimizado = minizacionAFD.minimizar()
+        e0, ef, transiciones = minizacionAFD.minimizar()
+        print(conversionAFD.transiciones)
+        print(transiciones)
 
     else:
         print("\nSe ha finalizado el programa por una mala expresión Regex")
