@@ -1,4 +1,4 @@
-# Laboratorio A
+# Laboratorio B
 
 Programa encargado de implementar la conversión de una expresión Regex a AFN pasando por postfix de primero. La ejecución se realiza con el comando
 
