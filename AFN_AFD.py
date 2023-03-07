@@ -109,6 +109,27 @@ class AFNtoAFD:
         # Exportar el gráfico como un archivo PNG
         dot.render('afd_grafico', format='png', view=True)
 
+        estado_inicial = None
+        estados_finales = []
+        for i, estado in enumerate(self.afd_estados):
+            if i == 0:
+                estado_inicial = str(chr(i+65))
+            if self.ef in estado:
+                estados_finales.append(str(chr(i+65)))
+
+        with open('afd.txt', 'a', encoding="utf-8") as f:
+            f.write("AFN  a partir de la Expresión Regular -->")
+            f.write("\n")
+            f.write("Símbolos: "+', '.join(self.simbolos))
+            f.write("\n")
+            f.write("Estados:  " + str(self.afd_estados))
+            f.write("\n")
+            f.write("Estado inicial: { " + str(estado_inicial) + " }")
+            f.write("\n")
+            f.write("Estados de aceptación: { " + str(estados_finales) + " }")
+            f.write("\n")
+            f.write("Transiciones: " + str(self.afd_transiciones))
+
         print("\nArchivo de AFD escrito con éxito")
 
     # metodo recursivo para simular una cadena en un afd
