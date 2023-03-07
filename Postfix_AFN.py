@@ -256,12 +256,42 @@ class PostifixToAFN():
         else:
             print("\nIngrese una expresión Regex válida")
 
-    def simular_cadena(self, estado_actual, cadena):
-        if cadena == "":
-            return estado_actual == self.ef
-        else:
-            for transicion in self.transiciones_splited:
-                if transicion[0] == estado_actual and transicion[1] == cadena[0]:
-                    if self.simular_cadena(transicion[2], cadena[1:]):
-                        return True
-            return False
+    def cerradura_epsilon(self, estados):
+        """
+        Aplica la cerradura epsilon a los estados dados y devuelve todos los estados alcanzables.
+        """
+        # Inicializar una lista con los estados iniciales
+        resultado = estados.copy()
+        # Inicializar una pila con los estados iniciales
+        pila = estados.copy()
+        # Mientras la pila no esté vacía
+        while pila:
+            # Obtener el siguiente estado de la pila
+            actual = pila.pop()
+            # Obtener todas las transiciones epsilon desde el estado actual
+            epsilon_transiciones = [
+                t[2] for t in self.transiciones_splited if t[0] == actual and t[1] == "ε"]
+            # Para cada estado alcanzable a través de una transición epsilon
+            for e in epsilon_transiciones:
+                # Si el estado no está en el resultado
+                if e not in resultado:
+                    # Agregar el estado al resultado y a la pila
+                    resultado.append(e)
+                    pila.append(e)
+        # Devolver todos los estados alcanzables
+        return resultado
+
+    def simular_cadena(self, cadena):
+        estados_actuales = self.cerradura_epsilon([self.e0])
+        estados_finales = []
+        for simbolo in cadena:
+            nuevos_estados = []
+            for estado in estados_actuales:
+                for transicion in self.transiciones_splited:
+                    if estado == transicion[0] and simbolo == transicion[1]:
+                        nuevos_estados.append(transicion[2])
+            if not nuevos_estados:
+                return False
+            estados_actuales = self.cerradura_epsilon(nuevos_estados)
+        estados_finales = self.cerradura_epsilon(estados_actuales)
+        return self.ef in estados_finales

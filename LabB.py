@@ -30,9 +30,12 @@ if __name__ == '__main__':
         conversionAFN.conversion()
 
         # SIMULACION AFN
-        acepta_cadena = conversionAFN.simular_cadena(
-            input("\nIngrese una cadena para simular:\n-> "))
-        print(acepta_cadena)  # devuelve True
+        cadena = input("\nIngrese una cadena para simular:\n-> ")
+        acepta_cadena = conversionAFN.simular_cadena(cadena)
+        if acepta_cadena:  # devuelve True
+            print(f"\nLa cadena '{cadena}' es aceptada por el afn.")
+        else:
+            print(f"\nLa cadena '{cadena}' NO es aceptada por el afn.")
 
         # instancia de clase para convertir AFN a AFD
         conversionAFD = AFNtoAFD(conversionAFN.e0, conversionAFN.ef,
