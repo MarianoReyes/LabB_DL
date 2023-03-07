@@ -30,18 +30,26 @@ if __name__ == '__main__':
         conversionAFN.conversion()
 
         # SIMULACION AFN
-        cadena = input("\nIngrese una cadena para simular:\n-> ")
+        cadena = input("\nIngrese una cadena para simular en AFN:\n-> ")
         acepta_cadena = conversionAFN.simular_cadena(cadena)
         if acepta_cadena:  # devuelve True
-            print(f"\nLa cadena '{cadena}' es aceptada por el afn.")
+            print(f"\nLa cadena '{cadena}' es aceptada por el AFN.")
         else:
-            print(f"\nLa cadena '{cadena}' NO es aceptada por el afn.")
+            print(f"\nLa cadena '{cadena}' NO es aceptada por el AFN.")
 
         # instancia de clase para convertir AFN a AFD
         conversionAFD = AFNtoAFD(conversionAFN.e0, conversionAFN.ef,
                                  conversionAFN.estados, conversionAFN.simbolos, conversionAFN.transiciones_splited)
 
         conversionAFD.construir_afd()
+
+        # SIMULACION AFD
+        cadena = input("\nIngrese una cadena para simular en AFD:\n-> ")
+        acepta_cadena = conversionAFD.simular_cadena(conversionAFD.e0, cadena)
+        if acepta_cadena:  # devuelve True
+            print(f"\nLa cadena '{cadena}' es aceptada por el AFD.")
+        else:
+            print(f"\nLa cadena '{cadena}' NO es aceptada por el AFD.")
 
         # instancia de clase para convertir a AFD de forma Directa
 

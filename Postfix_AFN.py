@@ -281,6 +281,7 @@ class PostifixToAFN():
         # Devolver todos los estados alcanzables
         return resultado
 
+    # metodo para simular una cadena en un afn
     def simular_cadena(self, cadena):
         estados_actuales = self.cerradura_epsilon([self.e0])
         estados_finales = []
