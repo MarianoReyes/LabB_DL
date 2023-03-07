@@ -11,14 +11,14 @@ class AFNtoAFD:
         self.afd_estados = []
         self.afd_transiciones = []
 
-    def cerradura_epsilon(self, estado):
+    def cerradura_epsilon(self, estados):
         """
-        Aplica la cerradura epsilon al estado dado y devuelve todos los estados alcanzables.
+        Aplica la cerradura epsilon a los estados dados y devuelve todos los estados alcanzables.
         """
-        # Inicializar una lista con el estado inicial
-        resultado = [estado]
-        # Inicializar una pila con el estado inicial
-        pila = [estado]
+        # Inicializar una lista con los estados iniciales
+        resultado = estados.copy()
+        # Inicializar una pila con los estados iniciales
+        pila = estados.copy()
         # Mientras la pila no esté vacía
         while pila:
             # Obtener el siguiente estado de la pila
@@ -59,7 +59,7 @@ class AFNtoAFD:
         """
         print("\nConvirtiendo de AFN a AFD...")
         # Obtener la cerradura epsilon del estado inicial
-        e0_cerradura = self.cerradura_epsilon(self.e0)
+        e0_cerradura = self.cerradura_epsilon([self.e0])
         # Agregar la cerradura epsilon del estado inicial como el primer estado del AFD
         self.afd_estados.append(e0_cerradura)
         # Inicializar una cola con el primer estado del AFD
@@ -73,8 +73,8 @@ class AFNtoAFD:
                 # Obtener la cerradura epsilon del conjunto de estados alcanzables
                 # desde el estado actual consumiendo el símbolo actual
 
-                for i in self.mover(actual, simbolo):
-                    alcanzables = (self.cerradura_epsilon(i))
+                alcanzables = (self.cerradura_epsilon(
+                    self.mover(actual, simbolo)))
 
                 # Si el conjunto de estados alcanzables no está en el AFD
                 if alcanzables not in self.afd_estados and simbolo != "ε":

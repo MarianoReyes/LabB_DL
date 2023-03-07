@@ -7,6 +7,7 @@ José Mariano Reyes
 from Regex_Postfix import convertExpression
 from Postfix_AFN import PostifixToAFN
 from AFN_AFD import AFNtoAFD
+from MinimizacionAFD import MinimizadorAFD
 
 # main del programa
 if __name__ == '__main__':
@@ -51,7 +52,11 @@ if __name__ == '__main__':
         else:
             print(f"\nLa cadena '{cadena}' NO es aceptada por el AFD.")
 
-        # instancia de clase para convertir a AFD de forma Directa
+        # MINIMIZACION DE AFD A PARTIR DE AFN
+        minizacionAFD = MinimizadorAFD(
+            conversionAFD.e0_afd, conversionAFD.ef_afd, conversionAFD.afd_transiciones)
+
+        afd_minimizado = minizacionAFD.minimizar()
 
     else:
         print("\nSe ha finalizado el programa por una mala expresión Regex")
