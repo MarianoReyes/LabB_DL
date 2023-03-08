@@ -44,21 +44,19 @@ if __name__ == '__main__':
 
         conversionAFD.construir_afd()
 
+        # MINIMIZACION DE AFD A PARTIR DE AFN
+        minizacionAFD = MinimizadorAFD(
+            conversionAFD.e0_afd, conversionAFD.ef_afd, conversionAFD.afd_transiciones, conversionAFD.estados)
+
+        minizacionAFD.minimizar('afd_minimizado_1.txt')
+
         # SIMULACION AFD
         cadena = input("\nIngrese una cadena para simular en AFD:\n-> ")
-        acepta_cadena = conversionAFD.simular_cadena(conversionAFD.e0, cadena)
+        acepta_cadena = minizacionAFD.simular_cadena(cadena)
         if acepta_cadena:  # devuelve True
             print(f"\nLa cadena '{cadena}' es aceptada por el AFD.")
         else:
             print(f"\nLa cadena '{cadena}' NO es aceptada por el AFD.")
-
-        # MINIMIZACION DE AFD A PARTIR DE AFN
-        minizacionAFD = MinimizadorAFD(
-            conversionAFD.e0_afd, conversionAFD.ef_afd, conversionAFD.afd_transiciones)
-
-        e0, ef, transiciones = minizacionAFD.minimizar()
-        print(conversionAFD.transiciones)
-        print(transiciones)
 
     else:
         print("\nSe ha finalizado el programa por una mala expresión Regex")

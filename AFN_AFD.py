@@ -113,6 +113,7 @@ class AFNtoAFD:
         self.e0_afd = None
         estados_finales = []
         self.ef_afd = []
+        self.estados = []
         for i, estado in enumerate(self.afd_estados):
             if i == 0:
                 estado_inicial = str(chr(i+65))
@@ -120,9 +121,10 @@ class AFNtoAFD:
             if self.ef in estado:
                 estados_finales.append(str(chr(i+65)))
                 self.ef_afd.append(i)
+            self.estados.append(i)
 
         with open('afd.txt', 'a', encoding="utf-8") as f:
-            f.write("AFD  a partir de un AFN -->")
+            f.write("AFD a partir de un AFN -->")
             f.write("\n")
             f.write("Símbolos: "+', '.join(self.simbolos))
             f.write("\n")
