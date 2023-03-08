@@ -1,150 +1,232 @@
-from typing import List, Tuple, Set
-
-
-class TreeNode:
-    def __init__(self, val: str):
-        self.val = val
-        self.left = None
-        self.right = None
-        self.states = set()
-
-
-def shunting_yard(expr: str) -> str:
+class State:
     """
-    Convierte una expresión regular a su forma postfija utilizando el algoritmo de Shunting Yard.
+    Clase que representa un estado del AFD.
     """
-    # Implementación del algoritmo de Shunting Yard
+
+    def __init__(self, name=None):
+        self.name = name
+        self.transitions = {}
+
+    def add_transition(self, symbol, state):
+        self.transitions[symbol] = state
 
 
-def build_syntax_tree(expr: str) -> TreeNode:
+class DFA:
     """
-    Construye un árbol sintáctico a partir de una expresión regular en forma postfija.
+    Clase que representa el AFD.
     """
-    # Implementación del algoritmo de construcción de árboles sintácticos
+
+    def __init__(self, start_state, accepting_states):
+        self.start_state = start_state
+        self.accepting_states = accepting_states
+
+    def accepts(self, string):
+        """
+        Función que determina si una cadena es aceptada o no por el AFD.
+        """
+        current_state = self.start_state
+        for symbol in string:
+            current_state = current_state.transitions.get(symbol)
+            if current_state is None:
+                return False
+        return current_state in self.accepting_states
 
 
-def assign_states(node: TreeNode, start_state: int) -> int:
+def parse_regex(regex):
     """
-    Asigna conjuntos de estados a cada nodo del árbol sintáctico.
+    Función que convierte la expresión regular en un árbol de sintaxis abstracta.
     """
-    if node.val == 'epsilon':
-        node.states.add(start_state)
-        return start_state
-    elif node.val == 'char':
-        node.states.add(start_state)
-        node.states.add(start_state + 1)
-        return start_state + 1
-    elif node.val == '.':
-        left_end_state = assign_states(node.left, start_state)
-        for state in node.left.states:
-            if state == left_end_state:
-                continue
-            for ch in node.right.states:
-                node.left.states.add(ch)
-                node.left.states.add(state)
-        return assign_states(node.right, left_end_state)
-    elif node.val == '|':
-        end_state = max(assign_states(node.left, start_state),
-                        assign_states(node.right, start_state))
-        for state in node.left.states:
-            node.states.add(state)
-        for state in node.right.states:
-            node.states.add(state)
-        return end_state
-    elif node.val == '*':
-        node.states.add(start_state)
-        node.states.add(start_state + 1)
-        left_end_state = assign_states(node.left, start_state + 2)
-        for state in node.left.states:
-            if state == left_end_state:
-                continue
-            node.left.states.add(start_state)
-            node.left.states.add(left_end_state + 1)
-            node.left.states.add(state)
-            node.left.states.add(left_end_state)
-        node.left.states.add(start_state)
-        node.left.states.add(left_end_state + 1)
-        node.states.add(left_end_state + 1)
-        return left_end_state + 1
+    # Definimos las funciones que generan los nodos del AST.
+
+    def parse_primary():
+        nonlocal pos
+        if pos >= len(regex):
+            raise ValueError("Unexpected end of regex")
+        if regex[pos] == "(":
+            pos += 1
+            node = parse_alternation()
+            if pos >= len(regex) or regex[pos] != ")":
+                raise ValueError("Expected closing parenthesis")
+            pos += 1
+        elif regex[pos] == ".":
+            pos += 1
+            node = ASTNode("concatenation")
+        elif regex[pos] == "|":
+            raise ValueError("Unexpected alternation")
+        elif regex[pos] == "*":
+            raise ValueError("Unexpected kleene star")
+        elif regex[pos] == "+":
+            raise ValueError("Unexpected positive closure")
+        elif regex[pos] == "?":
+            raise ValueError("Unexpected optional element")
+        else:
+            node = ASTNode("literal", regex[pos])
+            pos += 1
+        return node
+
+    def parse_closure():
+        nonlocal pos
+        node = parse_primary()
+        while pos < len(regex):
+            if regex[pos] == "*":
+                node = ASTNode("kleene_star", right=node)
+                pos += 1
+            elif regex[pos] == "+":
+                node = ASTNode("positive_closure", right=node)
+                pos += 1
+            elif regex[pos] == "?":
+                node = ASTNode("optional", right=node)
+                pos += 1
+            else:
+                break
+        return node
+
+    def parse_concatenation():
+        nonlocal pos
+        left = parse_closure()
+        while pos < len(regex) and regex[pos] not in "|)":
+            right = parse_closure()
+            left = ASTNode("concatenation", left=left, right=right)
+        return left
+
+    def parse_alternation():
+        nonlocal pos
+        left = parse_concatenation()
+        if pos < len(regex) and regex[pos] == "|":
+            pos += 1
+            right = parse_alternation()
+            left = ASTNode("alternation", left=left, right=right)
+        return left
+
+    # Convertimos la regex en un AST.
+    pos = 0
+    ast = parse_alternation()
+    if pos < len(regex):
+        raise ValueError("Unexpected character")
+    return ast
 
 
-def build_dfa(node: TreeNode) -> Tuple[Set[int], List[Set[int]], List[List[int]]]:
+def build_dfa(ast):
     """
-    Genera un AFD a partir del árbol sintáctico.
+    Función que construye el AFD a partir del AST.
     """
-    # Creamos un diccionario para mapear los conjuntos de estados a los nuevos estados del AFD
-    state_map = {}
+    start_state = State()
+    accepting_states = set()
 
-    # Función auxiliar para obtener el conjunto de estados del nodo
-    def get_node_states(n: TreeNode) -> Set[int]:
-        return n.states
+    # Implementar aquí el algoritmo de construcción directa.
 
-    # Función auxiliar para obtener el estado del conjunto de estados
-    def get_state(states: Set[int]) -> int:
-        if not states:
-            return -1
-        if states in state_map:
-            return state_map[states]
-        state_id = len(state_map)
-        state_map[states] = state_id
-        return state_id
-
-    # Obtenemos el conjunto de estados inicial y lo añadimos al AFD
-    initial_states = get_node_states(node)
-    initial_state = get_state(initial_states)
-    dfa_states = set([initial_state])
-    dfa_accept_states = []
-    dfa_transitions = []
-
-    # Cola para procesar los nuevos estados del AFD
-    state_queue = [initial_states]
-
-    # Procesamos los nuevos estados del AFD
-    while state_queue:
-        current_states = state_queue.pop(0)
-        current_state = get_state(current_states)
-
-        # Comprobamos si este estado contiene un estado de aceptación
-        if any(state in current_states for state in node.states):
-            dfa_accept_states.append(current_state)
-
-        # Creamos una nueva fila para las transiciones de este estado
-        dfa_transitions.append([-1] * 26)
-
-        # Comprobamos cada símbolo del alfabeto
-        for i in range(26):
-            symbol = chr(ord('a') + i)
-
-            # Obtenemos el conjunto de estados a los que podemos transicionar con el símbolo actual
-            next_states = set()
-            for state in current_states:
-                if state.val == 'char' and state.val == symbol:
-                    next_states.add(state.right)
-                elif state.val != 'char' and symbol == 'epsilon':
-                    next_states |= get_node_states(state.left)
-                    next_states |= get_node_states(state.right)
-
-            # Si no hay estados a los que podamos transicionar, saltamos a la siguiente iteración
-            if not next_states:
-                continue
-
-            # Obtenemos el estado del conjunto de estados resultante
-            next_state = get_state(next_states)
-
-            # Añadimos el estado resultante al AFD y a la cola de procesamiento si es un estado nuevo
-            if next_state not in dfa_states:
-                dfa_states.add(next_state)
-                state_queue.append(next_states)
-
-            # Añadimos la transición a la tabla de transiciones del AFD
-            dfa_transitions[current_state][i] = next_state
-
-    return dfa_states, dfa_accept_states, dfa_transitions
+    return DFA(start_state, accepting_states)
 
 
-# Ejemplo de uso:
-expr = 'a|b*'
-postfix_expr = shunting_yard(expr)
-syntax_tree = build_syntax_tree(postfix_expr)
-assign_states(syntax_tree, 1)
-dfa_states, dfa_accept_states, dfa_transitions = build_dfa(syntax_tree)
+def build_dfa(ast):
+    """
+    Función que construye el AFD a partir del AST.
+    """
+    def build_dfa_rec(node):
+        if node.kind == "literal":
+            state1 = State()
+            state2 = State()
+            state1.add_transition(node.value, state2)
+            return state1, state2
+        elif node.kind == "concatenation":
+            left_start, left_end = build_dfa_rec(node.left)
+            right_start, right_end = build_dfa_rec(node.right)
+            left_end.add_transition("", right_start)
+            return left_start, right_end
+        elif node.kind == "alternation":
+            start = State()
+            end = State()
+            left_start, left_end = build_dfa_rec(node.left)
+            right_start, right_end = build_dfa_rec(node.right)
+            start.add_transition("", left_start)
+            start.add_transition("", right_start)
+            left_end.add_transition("", end)
+            right_end.add_transition("", end)
+            return start, end
+        elif node.kind == "kleene_star":
+            start = State()
+            end = State()
+            inner_start, inner_end = build_dfa_rec(node.right)
+            start.add_transition("", inner_start)
+            start.add_transition("", end)
+            inner_end.add_transition("", inner_start)
+            inner_end.add_transition("", end)
+            return start, end
+        elif node.kind == "positive_closure":
+            start = State()
+            end = State()
+            inner_start, inner_end = build_dfa_rec(node.right)
+            start.add_transition("", inner_start)
+            inner_end.add_transition("", inner_start)
+            inner_end.add_transition("", end)
+            return start, end
+        elif node.kind == "optional":
+            start = State()
+            end = State()
+            inner_start, inner_end = build_dfa_rec(node.right)
+            start.add_transition("", inner_start)
+            start.add_transition("", end)
+            inner_end.add_transition("", end)
+            return start, end
+        else:
+            raise ValueError("Unknown AST node kind")
+
+    start_state, end_state = build_dfa_rec(ast)
+    accepting_states = {end_state}
+    return DFA(start_state, accepting_states)
+
+
+class ASTNode:
+    """
+    Clase que representa un nodo del AST.
+    """
+
+    def __init__(self, kind, value=None, left=None, right=None):
+        self.kind = kind
+        self.value = value
+        self.left = left
+        self.right = right
+
+
+class State:
+    """
+    Clase que representa un estado del AFD.
+    """
+
+    def __init__(self, label=None):
+        self.label = label
+        self.transitions = {}
+
+    def add_transition(self, symbol, state):
+        self.transitions[symbol] = state
+
+
+class DFA:
+    """
+    Clase que representa un AFD.
+    """
+
+    def __init__(self, start_state, accepting_states):
+        self.start_state = start_state
+        self.accepting_states = accepting_states
+
+    def recognize(self, string):
+        current_state = self.start_state
+        for symbol in string:
+            current_state = current_state.transitions.get(symbol)
+            if current_state is None:
+                return False
+        return current_state in self.accepting_states
+
+
+regex = "(a|b)*abb"
+ast = parse_regex(regex)
+dfa = build_dfa(ast)
+
+# Reconocer cadenas
+strings = ["", "a", "b", "ab", "ba", "abb", "bab", "bba", "abab", "bbabb"]
+for s in strings:
+    if dfa.recognize(s):
+        print(f"'{s}' es una cadena válida")
+    else:
+        print(f"'{s}' no es una cadena válida")
