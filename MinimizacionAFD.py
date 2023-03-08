@@ -128,14 +128,21 @@ class MinimizadorAFD:
 
         print("\nArchivo de AFD Minimizado escrito con éxito")
 
+    # metodo para simular una cadena en un afd minimizado
     def simular_cadena(self, cadena):
+        # Empezar desde el estado inicial
         current_state = self.e0
+        # Iterar a través de la cadena de entrada
         for symbol in cadena:
+            # Obtener el próximo estado usando la transición actual
             next_state = self.get_next_state(current_state, symbol)
+            # Si no hay transición disponible, la cadena es rechazada
             if next_state is None:
                 return False
-            for i, group in enumerate(self.grupos):
-                if next_state in group:
-                    current_state = str(i)
-                    break
-        return current_state in self.ef
+            # Actualizar el estado actual
+            current_state = next_state
+        # Verificar si el estado actual es final
+        if current_state in self.ef:
+            return True
+        else:
+            return False
