@@ -14,7 +14,7 @@ class MinimizadorAFD:
         print("\nMinimizando AFD...")
         self.initialize_groups()
         self.split_groups()
-        self.graficar(self.build_new_afd())
+        self.graficar(self.build_new_afd(), filename)
         self.escribir(filename)
 
     def initialize_groups(self):
@@ -95,7 +95,7 @@ class MinimizadorAFD:
                         break
         return new_transitions
 
-    def graficar(self, minimizador_afd):
+    def graficar(self, minimizador_afd, filename):
         graph = Digraph()
         graph.attr(rankdir='LR')
 
@@ -110,10 +110,10 @@ class MinimizadorAFD:
         for transicion in minimizador_afd.transiciones:
             graph.edge(transicion[0], transicion[2], label=transicion[1])
 
-        graph.render('afd_minimizado_grafico', format='png', view=True)
+        graph.render(filename, format='png', view=True)
 
     def escribir(self, filename):
-        with open(filename, 'a', encoding="utf-8") as f:
+        with open(filename+'.txt', 'a', encoding="utf-8") as f:
             f.write("AFD Minimizado a partir de un AFD generado por AFN -->")
             f.write("\n")
             f.write("Estados:  " + str(self.new_states))
