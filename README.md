@@ -1,6 +1,6 @@
 # Laboratorio B
 
-Programa encargado de implementar la conversión de una expresión Regex a AFN pasando por postfix de primero, luego AFN a AFD y por último la Minimización. De igual manera se implementa la construccipon de AFD de manera directa. La ejecución se realiza con el comando: 
+Programa encargado de implementar la conversión de una expresión Regex a AFN pasando por postfix de primero, luego AFN a AFD y por último la Minimización. De igual manera se implementa la construcción de AFD de manera directa. La ejecución se realiza con el comando:
 
 - python labB.py
 
