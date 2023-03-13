@@ -110,7 +110,7 @@ class AFD():
 
     # Obtiene la precedencia entre dos operadores
     def preceding_operator(self, op1, op2):
-        order = ['|', '.', '*']
+        order = ['?', '|', '.', '*', '+']
         if order.index(op1) >= order.index(op2):
             return True
         else:
@@ -156,6 +156,10 @@ class AFD():
             return self.operator_concat(left, right)
         elif operator == '*':
             return self.operator_kleene(right)
+        elif operator == '+':
+            return self.operator_positive_closure(right)
+        elif operator == '?':
+            return self.operator_optional(right)
 
     # Funcion del operador or
     def operator_or(self, left, right):
@@ -276,6 +280,47 @@ class AFD():
             self.nodes += [left_leaf, root]
             return root
 
+    def operator_positive_closure(self, leaf):
+        operator = '+'
+        if isinstance(leaf, Leaf):
+            root = Leaf(operator, None, True, [leaf], False)
+            leaf.is_nullable = True
+            self.nodes += [root]
+            return root
+
+        else:
+            id_left = None
+            if leaf != 'ε':
+                id_left = self.get_id()
+
+            left_leaf = Leaf(leaf, id_left, False, [], False)
+            root = Leaf(operator, None, True, [left_leaf], False)
+
+            left_leaf.is_nullable = True
+
+            self.nodes += [left_leaf, root]
+
+            return root
+
+    # Operacion opcionalidad
+    def operator_optional(self, leaf):
+        operator = '?'
+        if isinstance(leaf, Leaf):
+            root = Leaf(operator, None, True, [leaf], True)
+            self.nodes += [root]
+            return root
+
+        else:
+            id_left = None
+            if leaf != 'ε':
+                id_left = self.get_id()
+
+            left_leaf = Leaf(leaf, id_left, False, [], False)
+            root = Leaf(operator, None, True, [left_leaf], True)
+            self.nodes += [left_leaf, root]
+
+            return root
+
     # Se realiza el calculo de followpos
 
     def calculate_followpow(self):
@@ -307,9 +352,9 @@ class AFD():
     def get_name(self):
         if self.count == 0:
             self.count += 1
-            return 'S'  # Starting node!
+            return 'A'  # Starting node!
 
-        available_letters = ' ABCDEFGHIJKLMNOPQRTUVWXYZ'
+        available_letters = 'BCDEFGHIJKLMNOPQRSTUVWXYZ'
         name = available_letters[self.count]
         self.count += 1
 

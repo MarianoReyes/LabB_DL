@@ -62,6 +62,7 @@ if __name__ == '__main__':
 
         # convertir de regex a AFD
         regext = regex(exp, True)
+        print(regext)
         AFD_directo = AFD(regext)
 
         # simulacion de string
