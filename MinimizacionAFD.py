@@ -100,11 +100,11 @@ class MinimizadorAFD:
         graph.attr(rankdir='LR')
 
         # Agregar estados
-        for estado in minimizador_afd.estados:
+        for i, estado in enumerate(minimizador_afd.estados):
             if estado in minimizador_afd.ef:
-                graph.node(estado, shape='doublecircle')
+                graph.node(estado, shape='doublecircle', label=str(chr(i+65)))
             else:
-                graph.node(estado, shape='circle')
+                graph.node(estado, shape='circle', label=str(chr(i+65)))
 
         # Agregar transiciones
         for transicion in minimizador_afd.transiciones:
